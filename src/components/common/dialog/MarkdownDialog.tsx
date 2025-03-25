@@ -25,7 +25,7 @@ function MarkdownDialog() {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <span className="flex justify-center w-full font-normal text-gray-400 hover:text-gray-500 cursor-pointer">
+        <span className="font-normal text-gray-400 hover:text-gray-500 cursor-pointer">
           Add Content
         </span>
       </DialogTrigger>
