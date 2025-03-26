@@ -432,3 +432,5 @@ export default LabelCalendar;
 # 날짜가 1일 차이나는 문제
 
 - 원인은 기준시 차이 때문에.
+
+# Calendar 컴포넌트 TypeScript 데이터 타입 처리
