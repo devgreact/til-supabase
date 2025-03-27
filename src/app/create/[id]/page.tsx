@@ -21,6 +21,8 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import Image from "next/image";
 import { ChevronLeftIcon } from "lucide-react";
+import { useAtom } from "jotai";
+import { sidebarStateAtom } from "@/app/store";
 
 // contents 배열에 대한 타입 정의
 interface BoardContent {
@@ -33,6 +35,9 @@ interface BoardContent {
 }
 
 function Page() {
+  // jotai 상태 사용하기
+  const [sidebarState, setSideState] = useAtom(sidebarStateAtom);
+
   const router = useRouter();
   const { id } = useParams();
   // 데이터 출력 state
@@ -46,20 +51,24 @@ function Page() {
 
   // Page 삭제 함수
   const handleDeleteBoard = async () => {
-    console.log(id, "제거하라");
+    // console.log(id, "제거하라");
     const { error, status } = await deleteTodo(Number(id));
     if (!error) {
-      router.push("/");
+      setSideState("delete");
     }
   };
 
   // 타이틀 저장 함수
   const handleSaveTitle = async () => {
-    console.log(title);
-    const { data, error, status } = await updateTodoIdTitle(Number(id), title);
-    console.log(data);
-    console.log(error);
-    console.log(status);
+    const { data, error, status } = await updateTodoIdTitle(
+      Number(id),
+      title,
+      startDate,
+      endDate
+    );
+
+    // jotai의 State 갱신
+    setSideState("titleChange");
   };
   // 컨텐츠 삭제 함수
   const deleteContent = async (deleteBoardId: string) => {
@@ -169,6 +178,8 @@ function Page() {
   };
 
   useEffect(() => {
+    // jotai의 State 갱신
+    setSideState("add Page");
     fetchGetTodoId();
   }, []);
 
@@ -219,11 +230,13 @@ function Page() {
                 label="From"
                 required={false}
                 selectedDate={startDate}
+                onDateChange={setStarDate}
               />
               <LabelCalendar
                 label="To"
-                required={true}
+                required={false}
                 selectedDate={endDate}
+                onDateChange={setEndDate}
               />
             </div>
             <Button

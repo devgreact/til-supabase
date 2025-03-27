@@ -13,8 +13,12 @@ import { Input } from "@/components/ui/input";
 import { Dot, Search } from "lucide-react";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
+import { useAtom } from "jotai";
+import { sidebarStateAtom } from "@/app/store";
 
 function SideNavigation() {
+  // jotai 상태 사용하기
+  const [sidebarState, setSideState] = useAtom(sidebarStateAtom);
   // 라우터 이동
   const router = useRouter();
 
@@ -43,6 +47,7 @@ function SideNavigation() {
     console.log("등록된 id ", data.id);
     // 데이터 추가 성공시 할일 등록창으로 이동시킴
     // http://localhost:3000/create/ [data.id] 로 이동
+
     router.push(`/create/${data.id}`);
   };
   // read
@@ -61,13 +66,20 @@ function SideNavigation() {
       description: "데이터조회에 성공하였습니다",
       duration: 3000,
     });
-
+    setSideState("default");
     setTodos(data);
   };
 
   useEffect(() => {
-    fetchGetTodos();
-  }, []);
+    if (sidebarState !== "default") {
+      fetchGetTodos();
+
+      if (sidebarState === "delete") {
+        router.push("/");
+      }
+    }
+  }, [sidebarState]);
+
   return (
     <div className={styles.container}>
       {/* 검색창 */}
