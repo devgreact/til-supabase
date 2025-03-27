@@ -40,6 +40,9 @@ function Page() {
   const [contents, setContents] = useState<BoardContent[]>([]);
   const [startDate, setStarDate] = useState<undefined | Date>(new Date());
   const [endDate, setEndDate] = useState<undefined | Date>(new Date());
+  // Progress Bar 처리
+  const [completeCount, setCompleteCount] = useState<number>(0);
+  const [totalCount, setTotalCount] = useState<number>(0);
 
   // Page 삭제 함수
   const handleDeleteBoard = async () => {
@@ -75,7 +78,7 @@ function Page() {
 
   // 컨텐츠 데이터 업데이트 함수
   const updateContent = async (newData: BoardContent) => {
-    console.log("최종전달 ", newData);
+    // console.log("최종전달 ", newData);
 
     const newContentArr = contents.map((item) => {
       if (item.boardId === newData.boardId) {
@@ -114,6 +117,15 @@ function Page() {
     setEndDate(data?.end_date ? new Date(data.end_date) : new Date());
     const temp = data?.contents ? JSON.parse(data.contents as string) : [];
     setContents(temp);
+    // 목록 갱신시
+    calcCompletedCount(temp);
+  };
+  // contents 의 isCompleted 가 true 인 갯수 파악하기
+  const calcCompletedCount = (gogo: BoardContent[]) => {
+    const arr = gogo.filter((item) => item.isCompleted === true);
+    // console.log("count : ", arr.length);
+    setCompleteCount(arr.length);
+    setTotalCount((arr.length / gogo.length) * 100);
   };
 
   // 컨텐츠 추가하기
@@ -131,7 +143,7 @@ function Page() {
     // 기본으로 추가될 내용
 
     const updateContent = [...contents, addContent];
-    console.log("updateContent : ", updateContent);
+    // console.log("updateContent : ", updateContent);
     // 서버에 Row 를 업데이트 합니다.
     const { data, error, status } = await updateTodoId(
       Number(id),
@@ -190,10 +202,12 @@ function Page() {
           />
           {/* 진행율 */}
           <div className={styles.progressBar}>
-            <span className={styles.progressBar_status}>1/10 completed!</span>
+            <span className={styles.progressBar_status}>
+              {completeCount}/{contents.length} completed!
+            </span>
             {/* Progress 컴포넌트 배치 */}
             <Progress
-              value={33}
+              value={totalCount}
               className="w-[30%] h-2"
               indicateColor="bg-orange-500"
             />
@@ -244,7 +258,7 @@ function Page() {
             </button>
           </div>
         ) : (
-          <div className="flex flex-col items-center justify-start w-full h-full gap-4">
+          <div className="flex flex-col items-center justify-start w-full h-full gap-4 overflow-y-scroll">
             {contents.map((item) => (
               <BasicBoard
                 key={item.boardId}
